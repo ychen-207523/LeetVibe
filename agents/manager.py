@@ -20,7 +20,7 @@ def manager_node(state: AgentState):
     topic = state.get('current_topic', 'General')
 
     # Logic: Search for a problem using the tool we made
-    problem_text = search_leetcode_problem(topic)
+    problem_text = search_leetcode_problem.invoke({"topic": topic})
 
     # We update the state with the new problem
     return {
