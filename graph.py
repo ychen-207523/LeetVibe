@@ -8,22 +8,25 @@ from agents.grader import grader_node
 # 1. Define the Routing Logic
 # This function looks at the "Blackboard" and decides where to go next.
 def route_signal(state: AgentState):
-    # Check 1: Do we have a problem?
-    if not state.get("problem_description"):
-        return "manager"
-
-    # Check 2: Look at the LAST message (The User's input)
+    # 1. Analyze the User's input
     messages = state.get("messages", [])
     if messages:
         last_msg = messages[-1].content.lower()
 
-        # Simple heuristic: If it looks like Java, send to Grader
+        # FIX: Explicitly check if user wants a NEW problem
+        if "give me" in last_msg or "new question" in last_msg or "another" in last_msg or "random" in last_msg:
+            return "manager"
+
+        # Check for Java Code
         if "class solution" in last_msg or "public class" in last_msg:
-            # We also save the code to the state here for the Grader to find easily
             state["user_code"] = messages[-1].content
             return "grader"
 
-    # Default: Send to the conversationalist
+    # 2. Standard Check: If we simply don't have a problem yet, get one.
+    if not state.get("problem_description"):
+        return "manager"
+
+    # Default: Chat
     return "interviewer"
 
 
